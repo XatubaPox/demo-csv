@@ -76,8 +76,32 @@ const readCitySiafi = new Promise(async resolve => {
   resolve()
 })
 
-Promise.all([readUf, readCityPop, readCitySiafi]).then(() => {
+const readCompany = new Promise(async resolve => {
+  const streamCompany = createReadStream(paths[3], {
+    start: 71
+  })
+
+  const fileCompanyLines = createInterface({
+    input: streamCompany
+  })
+
+  for await (let line of fileCompanyLines) {
+    const companyLineSplit = line.split(',')
+    company.push({
+      nome_fantasia: companyLineSplit[0],
+      dt_inicio_atividades: companyLineSplit[1],
+      cnae_fiscal: companyLineSplit[2],
+      cep: companyLineSplit[3],
+      municipio: companyLineSplit[4],
+      porte: companyLineSplit[5]
+    })
+  }
+  resolve()
+})
+
+Promise.all([readUf, readCityPop, readCitySiafi, readCompany]).then(() => {
   console.log(ufs)
   console.log(cityPop)
   console.log(citySiafi)
+  console.log(company)
 })
