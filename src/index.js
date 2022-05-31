@@ -32,6 +32,28 @@ const readUf = new Promise(async resolve => {
   resolve()
 })
 
-Promise.all([readUf]).then(() => {
+const readCityPop = new Promise(async resolve => {
+  const streamCityPop = createReadStream(paths[1], {
+    start: 43
+  })
+
+  const fileCityPopLines = createInterface({
+    input: streamCityPop
+  })
+
+  for await (let line of fileCityPopLines) {
+    const cityPopLineSplit = line.split(',')
+    cityPop.push({
+      cod_ibge: cityPopLineSplit[0],
+      nome_cidade: cityPopLineSplit[1],
+      nome_uf: cityPopLineSplit[2],
+      populacao: cityPopLineSplit[3]
+    })
+  }
+  resolve()
+})
+
+Promise.all([readUf, readCityPop]).then(() => {
   console.log(ufs)
+  console.log(cityPop)
 })
