@@ -1,6 +1,8 @@
 import { createReadStream } from 'fs'
 import { createInterface } from 'readline'
 
+import { getNomeUf } from './util/uf.js'
+
 const paths = [
   'database/csv/input/uf.csv',
   'database/csv/input/cidade_populacao.csv',
@@ -99,9 +101,55 @@ const readCompany = new Promise(async resolve => {
   resolve()
 })
 
-Promise.all([readUf, readCityPop, readCitySiafi, readCompany]).then(() => {
-  console.log(ufs)
-  console.log(cityPop)
-  console.log(citySiafi)
-  console.log(company)
-})
+Promise.all([readUf, readCityPop, readCitySiafi, readCompany]).then(
+  async () => {
+    const arrayUf = []
+    let id_uf = 1
+
+    for await (let line of ufs) {
+      arrayUf.push({
+        id_uf: id_uf,
+        sigla: line.sigla,
+        nome_uf: getNomeUf(line.codigo_uf),
+        codigo_uf: line.codigo_uf
+      })
+      id_uf++
+    }
+
+    const arrayCity = []
+    let id_city = 1
+
+    for await (let line of citySiafi) {
+      let auxPopulacao = {}
+      for (let { cod_ibge, populacao } of cityPop) {
+        auxPopulacao = populacao
+
+        if (cod_ibge == line.codigo_ibge) {
+          break
+        }
+      }
+
+      let auxIdUf = {}
+      for (let { id_uf, codigo_uf } of arrayUf) {
+        auxIdUf = id_uf
+
+        if (codigo_uf == line.codigo_ibge.slice(0, 2)) {
+          break
+        }
+      }
+
+      arrayCity.push({
+        id_city: id_city,
+        nome: line.nome,
+        latitude: line.latitude,
+        longitude: line.longitude,
+        codigo_ibge: line.codigo_ibge,
+        siafi_id: line.siafi_id,
+        populacao: auxPopulacao,
+        uf_id: auxIdUf
+      })
+      id_city++
+    }
+    console.log(arrayCity)
+  }
+)
