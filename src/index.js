@@ -10,7 +10,7 @@ const paths = [
 
 const ufs = []
 const cityPop = []
-const citiSiafi = []
+const citySiafi = []
 const company = []
 
 const readUf = new Promise(async resolve => {
@@ -53,7 +53,31 @@ const readCityPop = new Promise(async resolve => {
   resolve()
 })
 
-Promise.all([readUf, readCityPop]).then(() => {
+const readCitySiafi = new Promise(async resolve => {
+  const streamCitySiafi = createReadStream(paths[2], {
+    start: 55
+  })
+
+  const fileCitySiafiLines = createInterface({
+    input: streamCitySiafi
+  })
+
+  for await (let line of fileCitySiafiLines) {
+    const citySiafiLineSplit = line.split(',')
+    citySiafi.push({
+      codigo_ibge: citySiafiLineSplit[0],
+      nome: citySiafiLineSplit[1],
+      latitude: citySiafiLineSplit[2],
+      longitude: citySiafiLineSplit[3],
+      codigo_uf: citySiafiLineSplit[4],
+      siafi_id: citySiafiLineSplit[5]
+    })
+  }
+  resolve()
+})
+
+Promise.all([readUf, readCityPop, readCitySiafi]).then(() => {
   console.log(ufs)
   console.log(cityPop)
+  console.log(citySiafi)
 })
