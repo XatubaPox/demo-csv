@@ -1,4 +1,4 @@
-import { readCompany } from './src/index.js'
+import { readCompany } from './src/input.js'
 ;(function run() {
   try {
     readCompany
