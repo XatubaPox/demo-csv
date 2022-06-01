@@ -80,7 +80,7 @@ const readCitySiafi = new Promise(async resolve => {
   resolve()
 })
 
-const readCompany = new Promise(async resolve => {
+export const readCompany = new Promise(async resolve => {
   const streamCompany = createReadStream(paths[3], {
     start: 71
   })
