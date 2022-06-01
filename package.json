@@ -9,5 +9,8 @@
   },
   "keywords": [],
   "author": "Xatuba Pox",
-  "license": "MIT LICENSE"
+  "license": "MIT LICENSE",
+  "dependencies": {
+    "slug": "^5.3.0"
+  }
 }
