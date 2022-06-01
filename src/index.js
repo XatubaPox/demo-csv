@@ -4,6 +4,7 @@ import slug from 'slug'
 
 import { getNomeUf } from './util/uf.js'
 import { formatDate } from './util/date.js'
+import { connection } from '../database/database.js'
 
 const paths = [
   'database/csv/input/uf.csv',
@@ -121,6 +122,8 @@ export const readCompany = new Promise(async (resolve, reject) => {
 
 Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
   .then(async () => {
+    await connection.connect()
+
     const arrayUf = []
     let id_uf = 1
 
@@ -132,6 +135,17 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
         codigo_uf: line.codigo_uf
       })
       id_uf++
+    }
+
+    try {
+      for (let item of arrayUf) {
+        await connection.query(
+          `INSERT INTO uf (sigla, nome_uf) 
+          VALUES ('${item.sigla}', '${item.nome_uf}')`
+        )
+      }
+    } catch (err) {
+      throw err
     }
 
     const arrayCity = []
@@ -169,6 +183,17 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
       id_city++
     }
 
+    try {
+      for (let item of arrayCity) {
+        await connection.query(
+          `INSERT INTO cidade (nome, populacao, latitude, longitude, cod_ibge, cod_siafi, uf_id) 
+          VALUES ("${item.nome}", '${item.populacao}', '${item.latitude}', '${item.longitude}', '${item.codigo_ibge}', '${item.siafi_id}', '${item.uf_id}')`
+        )
+      }
+    } catch (err) {
+      throw err
+    }
+
     const arrayCompany = []
 
     for await (let line of company) {
@@ -191,7 +216,17 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
         cidade_id: auxIdCity
       })
     }
-    console.log(arrayCompany)
+
+    try {
+      for (let item of arrayCompany) {
+        await connection.query(
+          `INSERT INTO empresa (slug, nome_fantasia, dt_inicio_atividade, cnae_fiscal, cep, porte, cidade_id) 
+          VALUES ("${item.slug}", "${item.nome_fantasia}", '${item.dt_inicio_atividades}', '${item.cnae_fiscal}', '${item.cep}', '${item.porte}', '${item.cidade_id}')`
+        )
+      }
+    } catch (err) {
+      throw err
+    }
   })
   .catch(err => {
     throw err
