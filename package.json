@@ -11,6 +11,7 @@
   "author": "Xatuba Pox",
   "license": "MIT LICENSE",
   "dependencies": {
+    "mysql2": "^2.3.3",
     "slug": "^5.3.0"
   }
 }
