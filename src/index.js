@@ -227,6 +227,7 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
     } catch (err) {
       throw err
     }
+    await connection.end()
   })
   .catch(err => {
     throw err
