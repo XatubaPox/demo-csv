@@ -1,7 +1,5 @@
 import { readCompany } from './src/index.js'
 
-const run = () => {
+;(async function run() {
   readCompany
-}
-
-run()
+})()
