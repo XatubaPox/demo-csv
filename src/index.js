@@ -1,7 +1,9 @@
 import { createReadStream } from 'fs'
 import { createInterface } from 'readline'
+import slug from 'slug'
 
 import { getNomeUf } from './util/uf.js'
+import { formatDate } from './util/date.js'
 
 const paths = [
   'database/csv/input/uf.csv',
@@ -150,6 +152,29 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany]).then(
       })
       id_city++
     }
-    console.log(arrayCity)
+
+    const arrayCompany = []
+
+    for await (let line of company) {
+      let auxIdCity = {}
+      for (let { siafi_id, id_city } of arrayCity) {
+        auxIdCity = id_city
+
+        if (siafi_id == line.municipio) {
+          break
+        }
+      }
+
+      arrayCompany.push({
+        slug: slug(line.nome_fantasia),
+        nome_fantasia: line.nome_fantasia,
+        dt_inicio_atividades: formatDate(line.dt_inicio_atividades),
+        cnae_fiscal: line.cnae_fiscal,
+        cep: line.cep,
+        porte: line.porte,
+        cidade_id: auxIdCity
+      })
+    }
+    console.log(arrayCompany)
   }
 )
