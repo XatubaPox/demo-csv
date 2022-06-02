@@ -5,6 +5,7 @@ import slug from 'slug'
 import { getNomeUf } from './util/uf.js'
 import { formatDate } from './util/date.js'
 import { connection } from '../database/database.js'
+import { output } from './output.js'
 
 const paths = [
   'database/csv/input/uf.csv',
@@ -173,11 +174,11 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
       arrayCity.push({
         id_city: id_city,
         nome: line.nome,
+        populacao: auxPopulacao,
         latitude: line.latitude,
         longitude: line.longitude,
         codigo_ibge: line.codigo_ibge,
         siafi_id: line.siafi_id,
-        populacao: auxPopulacao,
         uf_id: auxIdUf
       })
       id_city++
@@ -185,9 +186,13 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
 
     try {
       for (let item of arrayCity) {
+        let valuesCity = []
+        valuesCity.push(Object.values(item))
+
         await connection.query(
-          `INSERT INTO cidade (nome, populacao, latitude, longitude, cod_ibge, cod_siafi, uf_id) 
-          VALUES ("${item.nome}", '${item.populacao}', '${item.latitude}', '${item.longitude}', '${item.codigo_ibge}', '${item.siafi_id}', '${item.uf_id}')`
+          `INSERT INTO cidade (id, nome, populacao, latitude, longitude, cod_ibge, cod_siafi, uf_id) 
+          VALUES ?`,
+          [valuesCity]
         )
       }
     } catch (err) {
@@ -219,14 +224,20 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
 
     try {
       for (let item of arrayCompany) {
+        let valuesCompany = []
+        valuesCompany.push(Object.values(item))
+
         await connection.query(
           `INSERT INTO empresa (slug, nome_fantasia, dt_inicio_atividade, cnae_fiscal, cep, porte, cidade_id) 
-          VALUES ("${item.slug}", "${item.nome_fantasia}", '${item.dt_inicio_atividades}', '${item.cnae_fiscal}', '${item.cep}', '${item.porte}', '${item.cidade_id}')`
+          VALUES ?`,
+          [valuesCompany]
         )
       }
     } catch (err) {
       throw err
     }
+
+    output()
     await connection.end()
   })
   .catch(err => {
