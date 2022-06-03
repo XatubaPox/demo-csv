@@ -94,7 +94,7 @@ const readCitySiafi = new Promise(async (resolve, reject) => {
   }
 })
 
-export const readCompany = new Promise(async (resolve, reject) => {
+const readCompany = new Promise(async (resolve, reject) => {
   try {
     const streamCompany = createReadStream(paths[3], {
       start: 71
@@ -121,7 +121,12 @@ export const readCompany = new Promise(async (resolve, reject) => {
   }
 })
 
-Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
+export const allPromises = Promise.all([
+  readUf,
+  readCityPop,
+  readCitySiafi,
+  readCompany
+])
   .then(async () => {
     await connection.connect()
 
@@ -138,16 +143,15 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
       id_uf++
     }
 
-    try {
-      for (let item of arrayUf) {
-        await connection.query(
-          `INSERT INTO uf (sigla, nome_uf) 
-          VALUES ('${item.sigla}', '${item.nome_uf}')`
-        )
-      }
-    } catch (err) {
-      throw err
-    }
+    await connection
+      .query(
+        `INSERT INTO uf (sigla, nome_uf) 
+          VALUES ?`,
+        [arrayUf.map(data => [data.sigla, data.nome_uf])]
+      )
+      .catch(err => {
+        throw err
+      })
 
     const arrayCity = []
     let id_city = 1
@@ -184,20 +188,26 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
       id_city++
     }
 
-    try {
-      for (let item of arrayCity) {
-        let valuesCity = []
-        valuesCity.push(Object.values(item))
-
-        await connection.query(
-          `INSERT INTO cidade (id, nome, populacao, latitude, longitude, cod_ibge, cod_siafi, uf_id) 
+    await connection
+      .query(
+        `INSERT INTO cidade (id, nome, populacao, latitude, longitude, cod_ibge, cod_siafi, uf_id) 
           VALUES ?`,
-          [valuesCity]
-        )
-      }
-    } catch (err) {
-      throw err
-    }
+        [
+          arrayCity.map(data => [
+            data.id_city,
+            data.nome,
+            data.populacao,
+            data.latitude,
+            data.longitude,
+            data.codigo_ibge,
+            data.siafi_id,
+            data.uf_id
+          ])
+        ]
+      )
+      .catch(err => {
+        throw err
+      })
 
     const arrayCompany = []
 
@@ -222,20 +232,25 @@ Promise.all([readUf, readCityPop, readCitySiafi, readCompany])
       })
     }
 
-    try {
-      for (let item of arrayCompany) {
-        let valuesCompany = []
-        valuesCompany.push(Object.values(item))
-
-        await connection.query(
-          `INSERT INTO empresa (slug, nome_fantasia, dt_inicio_atividade, cnae_fiscal, cep, porte, cidade_id) 
+    await connection
+      .query(
+        `INSERT INTO empresa (slug, nome_fantasia, dt_inicio_atividade, cnae_fiscal, cep, porte, cidade_id) 
           VALUES ?`,
-          [valuesCompany]
-        )
-      }
-    } catch (err) {
-      throw err
-    }
+        [
+          arrayCompany.map(data => [
+            data.slug,
+            data.nome_fantasia,
+            data.dt_inicio_atividades,
+            data.cnae_fiscal,
+            data.cep,
+            data.porte,
+            data.cidade_id
+          ])
+        ]
+      )
+      .catch(err => {
+        throw err
+      })
 
     output()
     await connection.end()
