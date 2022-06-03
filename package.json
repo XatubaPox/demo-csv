@@ -5,12 +5,14 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
+    "start": "DEBUG=app* node --harmony-top-level-await app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "Xatuba Pox",
   "license": "MIT LICENSE",
   "dependencies": {
+    "debug": "^4.3.4",
     "fast-csv": "^4.3.6",
     "mysql2": "^2.3.3",
     "slug": "^5.3.0"
