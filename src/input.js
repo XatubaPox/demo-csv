@@ -190,11 +190,10 @@ export const allPromises = Promise.all([
 
     await connection
       .query(
-        `INSERT INTO cidade (id, nome, populacao, latitude, longitude, cod_ibge, cod_siafi, uf_id) 
+        `INSERT INTO cidade (nome, populacao, latitude, longitude, cod_ibge, cod_siafi, uf_id) 
           VALUES ?`,
         [
           arrayCity.map(data => [
-            data.id_city,
             data.nome,
             data.populacao,
             data.latitude,
