@@ -23,10 +23,4 @@ export const output = async () => {
       reject(err)
     }
   })
-    .then(() => {
-      console.log('Arquivo saida.csv gerado com sucesso!')
-    })
-    .catch(() => {
-      console.log('Não foi possível gerar o arquivo de saída.')
-    })
 }
