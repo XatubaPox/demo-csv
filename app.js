@@ -1,7 +1,7 @@
-import { readCompany } from './src/input.js'
-;(function run() {
+import { allPromises } from './src/input.js'
+;(async function run() {
   try {
-    readCompany
+    await allPromises
   } catch (err) {
     throw err
   }
