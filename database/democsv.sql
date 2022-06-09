@@ -39,6 +39,10 @@ CREATE TABLE IF NOT EXISTS empresa (
   cep VARCHAR(255),
   porte INT,
   cidade_id INT,
+  dist_1 FLOAT,
+  dist_2 FLOAT,
+  dist_3 FLOAT,
+  dist_4 FLOAT,
   PRIMARY KEY (id),
   CONSTRAINT fk_empresa_cidade FOREIGN KEY (cidade_id) REFERENCES cidade (id)
 );
@@ -56,7 +60,11 @@ SELECT
   u.sigla AS sigla_uf,
   c.populacao AS populacao_cidade,
   c.latitude AS latitude_cidade,
-  c.longitude AS longitude_cidade
+  c.longitude AS longitude_cidade,
+  e.dist_1,
+  e.dist_2,
+  e.dist_3,
+  e.dist_4
 FROM
   empresa AS e
   INNER JOIN cidade AS c ON (e.cidade_id = c.id)
